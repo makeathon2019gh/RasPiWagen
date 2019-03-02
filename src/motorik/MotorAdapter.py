@@ -1,4 +1,4 @@
-import pigpio
+from testing import pigpio
  
 
 class MotorAdapter(object):
