@@ -7,14 +7,20 @@ class MotorAdapter(object):
     pinStep = 3
     webSocketAdapt = None
 
+    def log(message):
+        print("[Motor] : %s" % message)
+
+
     def powerOn(self):
+        log("Motor wird angeschalten")
         GPIO.output(pinAntrieb, 1)
     
     def powerOff(self):
+        log("Motor wird ausgeschalten")
         GPIO.output(pinAntrieb, 0)
-        webSocketAdapt.sendMessage("STOP")
-
+        
     def rechtsFahren(count):
+        log("Fahre anch rechts")
         GPIO.output(pinDirection, High)
         for i in range(count):
             GPIO.output(pinStep, High)
@@ -23,6 +29,7 @@ class MotorAdapter(object):
             time.sleep(0.0001)
 
     def linksFahren(count):
+        log("Fahre anch links")
         GPIO.output(pinDirection, Low)
         for i in range(count):
             GPIO.output(pinStep, High)

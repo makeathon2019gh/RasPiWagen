@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 from motorik import MotorAdapter
 from network import WebSocketAdapter
+from motorik import Fahrer
 import threading
 
 class UltraschallWatch(threading.Thread):
@@ -14,8 +15,9 @@ class UltraschallWatch(threading.Thread):
 
     motorAdapt = None
     webSocketAdapt = None
+    fahrer = None
 
-    def __init__(self, motorAdapt, webSocketAdapt):
+    def __init__(self, fahrer, motorAdapt, webSocketAdapt):
         super(StoppableThread, self).__init__()
         self._stop_event = threading.Event()
 
@@ -29,6 +31,7 @@ class UltraschallWatch(threading.Thread):
         
         self.motorAdapt = motorAdapt
         self.webSocketAdapt = webSocketAdapt
+        self.fahrer = fahrer
 
     def stop(self):
         self._stop_event.set()
@@ -38,6 +41,7 @@ class UltraschallWatch(threading.Thread):
 
 
     def watch(self):
+        log(" Beginne Ultraschall-Überwachung")
         while(True):
             if(stopped()):
                 return
@@ -63,6 +67,9 @@ class UltraschallWatch(threading.Thread):
             
             if(distanz < 50):
                 motorAdapt.powerOff()
+                fahrer.stopDriving()
+                log(" Distanz &.1f wurde gemessen und als zu kurz befunden." % distanz)
+                webSocketAdapt.sendMessage("STOP")
                 webSocketAdapt.sendMessage("LOG=\"Hindernis im Weg!!! Bitte nichts näher als 50cm an den Wagen herankommen lassen!\"")
             
     def startWatch(self):
@@ -71,6 +78,9 @@ class UltraschallWatch(threading.Thread):
 
     def stopWatch(self):
         self.stop()
+
+    def log(message):
+        print("[Ultraschall] : %s" % message)
 
 
             

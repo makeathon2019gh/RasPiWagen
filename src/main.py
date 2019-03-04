@@ -22,15 +22,18 @@ def startup():
 
         log("--------------- Der Einkaufswagen wurde gestartet ---------------")
         
+        log("Initialisiere GPIO")
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
+        log("Initialisiere Motor, Websocket und RFID-Adapter")
         motorAdapt = MotorAdapter.MotorAdapter(0,0, webSocketAdapt)
         webSocketAdapt = WebSocketAdapter.WebSocketAdapter("192.168.137.33")
         RFIDAdapter = RFIDAdapter.RFIDAdapter()
 
         log("Adapter wurden initialisiert.")
 
+        log("Melde beim Server an")
         #Beim Server anmelden
         
         #TODO: Auslesen des ClientSecrets aus Config-File o.ä.
@@ -45,10 +48,9 @@ def startup():
         RFIDAdapter.generateNDEF(token)
         RFIDAdapter.createConnection()
 
-        #Location vom Server empfangen
-
         while(True):
                 command = webSocketAdapt.receiveMessage()
+                log("Befehl %s vom Server empfangen" % command)
 
                 if(command == "DONE"):
                         log("Der Einkaufswagen ist fertig und kehrt nun wieder in den Anfangszustand zurück.")
@@ -59,9 +61,8 @@ def startup():
                         self.fahrer = Fahrer.Fahrer(motorAdapt, nextLoc, webSocketAdapt)
                         self.fahrer.startDriving()
                 else if(command == "STOP"):
+                        log("Der Einkaufswagen wird gestoppt.")
                         self.fahrer.stopDriving()
-                
-        pass
 
 if __name__ == "__main__":
         startup()

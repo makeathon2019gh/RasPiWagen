@@ -39,47 +39,21 @@ class WebSocketAdapter(object):
 
     def sendMessage(self, message):
         ws = create_connection(uri)
-        log("Sending message \"%s\"" % message)
+        log("Sende Nachricht \"%s\"" % message)
         ws.send(message)
-        log("Message sent.")
+        log("Nachricht gesendet.")
         ws.close()
 
     def receiveMessage(self):
         ws = create_connection(uri)
-        log("Waiting for message")
+        log("Warte auf Nachricht")
         result = ws.recv()
-        log("Received message \"%s\"" % result)
+        log("Nachricht empfangen \"%s\"" % result)
         return result
 
     def log(self, message):
         print("[WebSocket] : " + message)
 
-
-###################---------OLD-----------################
-
-#
-#    def __init__(self, serverip):
-#        self.serverip = serverip
-#       self.log("WebSocket-Serveradresse " + serverip + " initialisiert.")
-#        self.uri = "ws://"+serverip+":80"
-
-#        wagen_server = websockets.serve(hello, "127.0.0.1", 8765)
-#        asyncio.get_event_loop().run_until_complete(wagen_server)
-#        asyncio.get_event_loop().run_forever()
-
-#    def log(self, message):
-#        print("[WebSocket] : " + message)
-
-#    def sendMessage(self, message):
-#        asyncio.get_event_loop().run_until_complete(
-#            self.sendAsyncMessage(message))        
-
-#    async def sendAsyncMessage(self, message):
-#            async with websockets.connect(self.uri) as websocket:
-#                await websocket.send(message)
-
-#    def receiveMessage():
-#        message = 
 
 
 

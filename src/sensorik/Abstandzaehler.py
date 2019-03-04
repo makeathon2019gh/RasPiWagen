@@ -24,6 +24,7 @@ class Abstandzaehler(threading.Thread):
 
 
     def monitoring(self)
+        log(" Abstandzähler wird gestartet")
         while(True):
             if(stopped()):
                 return
@@ -44,6 +45,7 @@ class Abstandzaehler(threading.Thread):
     def stopMonitoring(self):
         stop()
 
-    
+    def log(message):
+        print("[Abstandzähler] : %s" % message)
 
 

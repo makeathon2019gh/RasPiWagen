@@ -37,22 +37,28 @@ class Fahrer(threading.Thread):
 
     def drive(self):
         
-        log("Fahrer gestartet.")
+        log("Fahrer gestartet. Starte Watcher")
         
         ultraSchallWatcher.startWatch()
         linienFolger.startWatch()
         abstandZaehler.startMonitoring()
         motorAdapt.powerOn()
 
+        log("Starte Motor")
+
         while(pathFinder.getDistanceToLoc(destLoc) > 0.1):
             if(stopped()):
+                log("Breche Fahrt ab")
+                motorAdapt.powerOff()
                 ultraSchallWatcher.stopWatch()
                 linienFolger.stopWatch()
                 abstandZaehler.stopMonitoring()
+                
                 return
             continue
         
         log("Ziel erreicht.")
+        motorAdapt.powerOff()
 
         ultraSchallWatcher.stopWatch()
         linienFolger.stopWatch()

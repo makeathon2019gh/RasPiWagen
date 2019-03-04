@@ -13,3 +13,6 @@ class PathFinder(object):
     
     def setLocation(self, location):
         self.currentLocation.dist = location.dist
+
+    def log(message):
+        print("[Pathfinder] : %s" % message)
