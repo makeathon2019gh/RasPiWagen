@@ -1,4 +1,4 @@
-from RPi.GPIO import GPIO
+import RPi.GPIO as GPIO
 from network import WebSocketAdapter
 
 class MotorAdapter(object):
@@ -20,7 +20,7 @@ class MotorAdapter(object):
         GPIO.output(pinAntrieb, 0)
         
     def rechtsFahren(count):
-        log("Fahre anch rechts")
+        log("Fahre nach rechts")
         GPIO.output(pinDirection, High)
         for i in range(count):
             GPIO.output(pinStep, High)
@@ -29,7 +29,7 @@ class MotorAdapter(object):
             time.sleep(0.0001)
 
     def linksFahren(count):
-        log("Fahre anch links")
+        log("Fahre nach links")
         GPIO.output(pinDirection, Low)
         for i in range(count):
             GPIO.output(pinStep, High)

@@ -1,12 +1,13 @@
 
-from RPi.GPIO import GPIO
+import RPi.GPIO as GPIO
 from motorik import MotorAdapter
-from sensorik import SensorAdapter
 from network import WebSocketAdapter
 from motorik import Fahrer
-from motorik import Location
+from pathFinding import Location
+from sensorik import RFIDAdapter
 import string
 import random
+import sys
 
 sensorAdapt = None
 motorAdapt = None
@@ -14,11 +15,14 @@ webSocketAdapt = None
 token = None
 nextLoc = None
 fahrer = None
+rfidAdapt = None
 
 def log(message):
         print("[MAIN] : %s" % message)
 
 def startup():
+	sys.path.append('/home/pi/RasPiWagen/src')
+	sys.path.append('/home/pi/RasPiWagen/src/motorik')
 
         log("--------------- Der Einkaufswagen wurde gestartet ---------------")
         
@@ -27,40 +31,42 @@ def startup():
         GPIO.setwarnings(False)
 
         log("Initialisiere Motor, Websocket und RFID-Adapter")
-        motorAdapt = MotorAdapter.MotorAdapter(0,0, webSocketAdapt)
         webSocketAdapt = WebSocketAdapter.WebSocketAdapter("192.168.137.33")
-        RFIDAdapter = RFIDAdapter.RFIDAdapter()
+	motorAdapt = MotorAdapter.MotorAdapter(0,0, webSocketAdapt)
+        
+        rfidAdapt = RFIDAdapter.RFIDAdapter()
 
         log("Adapter wurden initialisiert.")
 
         log("Melde beim Server an")
         #Beim Server anmelden
         
-        #TODO: Auslesen des ClientSecrets aus Config-File o.ä.
+        #TODO: Auslesen des ClientSecrets aus Config-File o.ae.
         clientsecret = "KVmKs53uZVmGHcKx"
      
         webSocketAdapt.sendMessage("LOGIN=%s" % clientsecret)
 
-        token = webSocketAdapt.receiveMessage()
+        token = webSocketAdapt.receiveMessage()[10:]
 
-        log("Mit ClientSecret \"%s\" beim Server angemeldet und Token \"%s\" als Antwort empfangen, starte RFID-Bereitschaft." % clientsecret, token)
+        log("Mit ClientSecret \"%s\" beim Server angemeldet und Token \"%s\" als Antwort empfangen, starte RFID-Bereitschaft." % (clientsecret, token))
 
-        RFIDAdapter.generateNDEF(token)
-        RFIDAdapter.createConnection()
+        rfidAdapt.generateNDEF(token)
+        rfidAdapt.createConnection()
 
         while(True):
                 command = webSocketAdapt.receiveMessage()
                 log("Befehl %s vom Server empfangen" % command)
 
                 if(command == "DONE"):
-                        log("Der Einkaufswagen ist fertig und kehrt nun wieder in den Anfangszustand zurück.")
+                        log("Der Einkaufswagen ist fertig und kehrt nun wieder in den Anfangszustand zurueck.")
+			webSocketAdapt.closeWS()
                         startup()
-                else if(command.startswith('GOTO')):
+                elif(command.startswith('GOTO')):
                         pos = command[5:]
-                        nextLoc = Location.Location((int)pos, 'A')
+                        nextLoc = Location.Location(pos, 'A')
                         self.fahrer = Fahrer.Fahrer(motorAdapt, nextLoc, webSocketAdapt)
                         self.fahrer.startDriving()
-                else if(command == "STOP"):
+                elif(command == "STOP"):
                         log("Der Einkaufswagen wird gestoppt.")
                         self.fahrer.stopDriving()
 

@@ -1,8 +1,8 @@
 
 import RPi.GPIO as GPIO
 from motorik import MotorAdapter
-from network import WebSocketAdapter 
-from motorik import Fahrer 
+from network import WebSocketAdapter
+import motorik.Fahrer
 import threading
 
 class LinienFolger(threading.Thread):
@@ -13,7 +13,7 @@ class LinienFolger(threading.Thread):
     fahrer = None
     threadid = None
 
-    def __init__(self, fahrer motorAdapt, webSocketAdapt):
+    def __init__(self, fahrer, motorAdapt, webSocketAdapt):
         super(StoppableThread, self).__init__()
         self._stop_event = threading.Event()
 
@@ -43,14 +43,14 @@ class LinienFolger(threading.Thread):
                     return
                 motorAdapt.linksFahren(10)
             self.watch()
-        else if(GPIO.input(pinRight) == 0 and GPIO.input(pinLeft) == 1):
+        elif(GPIO.input(pinRight) == 0 and GPIO.input(pinLeft) == 1):
             log("Links abgekommmen!")
             while(GPIO.input(pinLeft) == 1):
                 if(stopped()):
                     return
                 motorAdapt.rechtsFahren(10)
             self.watch()    
-        else if(GPIO.input(pinRight) == 1 and GPIO.input(pinLeft) == 1):
+        elif(GPIO.input(pinRight) == 1 and GPIO.input(pinLeft) == 1):
             log("Von beiden Seiten abgekommmen!")
             motorAdapt.powerOff()
             fahrer.stopDriving()

@@ -1,6 +1,7 @@
+from Location import Location
 
 class PathFinder(object):
-    currentLocation = Location()
+    currentLocation = Location(0, 'A')
 
     def __init__(self):
         pass
