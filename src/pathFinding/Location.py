@@ -9,3 +9,5 @@ class Location(object):
         self.dist = dist
         self.knoten = knoten
 
+    def getDist(self):
+	return self.dist

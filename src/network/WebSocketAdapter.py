@@ -18,7 +18,7 @@ class WebSocketAdapter(object):
         self.log("WebSocket-Serveradresse " + serverip + " initialisiert.")
         self.uri = "ws://"+serverip+":80"
         self.ws = create_connection(self.uri)
-	    self.log("WebSocket-Verbindung wurde hergestellt")
+	self.log("WebSocket-Verbindung wurde hergestellt")
 	
     def sendMessage(self, message):
         self.log("Sende Nachricht \"%s\"" % message)

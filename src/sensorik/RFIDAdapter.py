@@ -21,6 +21,7 @@ class RFIDAdapter(object):
         self.log("Verbinde mit NFC-Client")
         #response = subprocess.check_output(['nfc-emulate-forum-tag4 message.ndef'], shell=True)
         #response = response.lower()
+	response = ""
         if 'rf transmission error' not in response:
             self.log(" Erfolgreich mit NFC-Client verbunden.")
             return

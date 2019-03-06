@@ -3,22 +3,23 @@ from network import WebSocketAdapter
 import time
 
 class MotorAdapter(object):
-    pinAntrieb = 2
+    pinAntrieb = 10
     pinDirection = 4
     pinStep = 3
     
     def log(self, message):
         print("[Motor] : %s" % message)
 
-
     def powerOn(self):
         self.log("Motor wird angeschalten")
         GPIO.setmode(GPIO.BCM)
-        GPIO.output(self.pinAntrieb, GPIO.HIGH)
+	GPIO.setup(self.pinAntrieb, GPIO.OUT)
+        GPIO.output(self.pinAntrieb, GPIO.LOW)
     
     def powerOff(self):
         self.log("Motor wird ausgeschalten")
         GPIO.setmode(GPIO.BCM)
+	GPIO.setup(self.pinAntrieb, GPIO.OUT)
         GPIO.output(self.pinAntrieb, GPIO.HIGH)
         
     def rechtsFahren(self, count):
@@ -43,7 +44,7 @@ class MotorAdapter(object):
     
     def __init__(self):
         GPIO.setup(self.pinAntrieb, GPIO.OUT)
-        GPIO.setup(self.pinSteuerung, GPIO.OUT)
+        GPIO.setup(self.pinStep, GPIO.OUT)
         GPIO.setup(self.pinDirection, GPIO.OUT)
 
 

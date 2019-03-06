@@ -31,7 +31,7 @@ def startup():
         GPIO.setwarnings(False)
 
         log("Initialisiere Motor, Websocket und RFID-Adapter")
-        webSocketAdapt = WebSocketAdapter.WebSocketAdapter("192.168.137.33")
+        webSocketAdapt = WebSocketAdapter.WebSocketAdapter("192.168.137.1")
 	motorAdapt = MotorAdapter.MotorAdapter()
         
         rfidAdapt = RFIDAdapter.RFIDAdapter()
@@ -52,10 +52,12 @@ def startup():
 
         rfidAdapt.generateNDEF(token)
         rfidAdapt.createConnection()
-
+	
+	fahrer = None
+	actLoc = Location.Location(0, 'A')
         while(True):
                 command = webSocketAdapt.receiveMessage()
-                log("Befehl %s vom Server empfangen" % command)
+		log("Befehl %s vom Server empfangen" % command)
 
                 if(command == "DONE"):
                         log("Der Einkaufswagen ist fertig und kehrt nun wieder in den Anfangszustand zurueck.")
@@ -64,11 +66,14 @@ def startup():
                 elif(command.startswith('GOTO')):
                         pos = command[5:]
                         nextLoc = Location.Location(pos, 'A')
-                        self.fahrer = Fahrer.Fahrer(motorAdapt, nextLoc, webSocketAdapt)
-                        self.fahrer.startDriving()
+                        fahrer = Fahrer.Fahrer(motorAdapt, nextLoc, webSocketAdapt, actLoc)
+			log("Die aktuelle Location ist %i " % actLoc.getDist()) 
+                        fahrer.startDriving()
                 elif(command == "BREAK"):
                         log("Der Einkaufswagen wird gestoppt.")
-                        self.fahrer.stopDriving()
+			actLoc = fahrer.getLocation()
+                        log("Der aktuelle Abstand betraegt: %i" %actLoc.getDist())
+			fahrer.stopDriving()
 
 if __name__ == "__main__":
         startup()

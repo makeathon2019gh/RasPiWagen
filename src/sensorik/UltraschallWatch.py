@@ -24,6 +24,7 @@ class UltraschallWatch(threading.Thread):
 
     def __init__(self, fahrer, motorAdapt, webSocketAdapt):
         #super(StoppableThread, self).__init__()
+        threading.Thread.__init__(self)
         self._stop_event = threading.Event()
 
         GPIO.setmode(GPIO.BCM)
@@ -53,6 +54,7 @@ class UltraschallWatch(threading.Thread):
     def watch(self):
         self.log(" Beginne Ultraschall-Ueberwachung")
         while(True):
+	    time.sleep(0.01)
             if(self.stopped()):
                 return
             

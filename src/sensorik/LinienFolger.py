@@ -16,14 +16,16 @@ class LinienFolger(threading.Thread):
 
     def __init__(self, fahrer, motorAdapt, webSocketAdapt):
         #super(StoppableThread, self).__init__()
+        threading.Thread.__init__(self)
+
         self._stop_event = threading.Event()
 
         self.motorAdapt = motorAdapt
         self.webSocketAdapt = webSocketAdapt
         self.fahrer = fahrer
 
-        GPIO.setup(self.pinRight, GPIO.INPUT)
-        GPIO.setup(self.pinLeft, GPIO.INPUT)
+        GPIO.setup(self.pinRight, GPIO.IN)
+        GPIO.setup(self.pinLeft, GPIO.IN)
 
     def stop(self):
         self._stop_event.set()
@@ -36,18 +38,20 @@ class LinienFolger(threading.Thread):
         while (GPIO.input(self.pinRight) == 0 and GPIO.input(self.pinLeft) == 0):
             if(self.stopped()):
                 return
-            time.sleep(0.0001)
+            time.sleep(0.001)
         if(GPIO.input(self.pinRight) == 1 and GPIO.input(self.pinLeft) == 0 ):
             self.log("Rechts abgekommmen!")
             while(GPIO.input(self.pinRight) == 1):
-                if(self.stopped()):
+                time.sleep(0.001)
+		if(self.stopped()):
                     return
                 self.motorAdapt.linksFahren(10)
             self.run()
         elif(GPIO.input(self.pinRight) == 0 and GPIO.input(self.pinLeft) == 1):
             self.log("Links abgekommmen!")
             while(GPIO.input(self.pinLeft) == 1):
-                if(self.stopped()):
+                time.sleep(0.001)
+		if(self.stopped()):
                     return
                 self.motorAdapt.rechtsFahren(10)
             self.run()    
