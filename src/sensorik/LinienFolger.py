@@ -4,6 +4,7 @@ from motorik import MotorAdapter
 from network import WebSocketAdapter
 import motorik.Fahrer
 import threading
+import time
 
 class LinienFolger(threading.Thread):
     pinRight = 27
@@ -14,15 +15,15 @@ class LinienFolger(threading.Thread):
     threadid = None
 
     def __init__(self, fahrer, motorAdapt, webSocketAdapt):
-        super(StoppableThread, self).__init__()
+        #super(StoppableThread, self).__init__()
         self._stop_event = threading.Event()
 
         self.motorAdapt = motorAdapt
         self.webSocketAdapt = webSocketAdapt
         self.fahrer = fahrer
 
-        GPIO.setup(pinRight, GPIO.INPUT)
-        GPIO.setup(pinLeft, GPIO.INPUT)
+        GPIO.setup(self.pinRight, GPIO.INPUT)
+        GPIO.setup(self.pinLeft, GPIO.INPUT)
 
     def stop(self):
         self._stop_event.set()
@@ -30,38 +31,37 @@ class LinienFolger(threading.Thread):
     def stopped(self):
         return self._stop_event.is_set()
 
-    def watch(self):
-        log(" Starte Linienfolger")
-        while (GPIO.input(pinRight) == 0 and GPIO.input(pinLeft) == 0):
-            if(stopped()):
+    def run(self):
+        self.log(" Starte Linienfolger")
+        while (GPIO.input(self.pinRight) == 0 and GPIO.input(self.pinLeft) == 0):
+            if(self.stopped()):
                 return
-            thread.sleep(0.0001)
-        if(GPIO.input(pinRight) == 1 and GPIO.input(pinLeft) == 0 ):
-            log("Rechts abgekommmen!")
-            while(GPIO.input(pinRight) == 1):
-                if(stopped()):
+            time.sleep(0.0001)
+        if(GPIO.input(self.pinRight) == 1 and GPIO.input(self.pinLeft) == 0 ):
+            self.log("Rechts abgekommmen!")
+            while(GPIO.input(self.pinRight) == 1):
+                if(self.stopped()):
                     return
-                motorAdapt.linksFahren(10)
-            self.watch()
-        elif(GPIO.input(pinRight) == 0 and GPIO.input(pinLeft) == 1):
-            log("Links abgekommmen!")
-            while(GPIO.input(pinLeft) == 1):
-                if(stopped()):
+                self.motorAdapt.linksFahren(10)
+            self.run()
+        elif(GPIO.input(self.pinRight) == 0 and GPIO.input(self.pinLeft) == 1):
+            self.log("Links abgekommmen!")
+            while(GPIO.input(self.pinLeft) == 1):
+                if(self.stopped()):
                     return
-                motorAdapt.rechtsFahren(10)
-            self.watch()    
-        elif(GPIO.input(pinRight) == 1 and GPIO.input(pinLeft) == 1):
-            log("Von beiden Seiten abgekommmen!")
-            motorAdapt.powerOff()
-            fahrer.stopDriving()
-            webSocketAdapt.sendMessage("LOG=\"Der Wagen ist vom rechten Pfad abgekommen. Bitte manuell beheben.\"")
+                self.motorAdapt.rechtsFahren(10)
+            self.run()    
+        elif(GPIO.input(self.pinRight) == 1 and GPIO.input(self.pinLeft) == 1):
+            self.log("Von beiden Seiten abgekommmen!")
+            self.motorAdapt.powerOff()
+            self.fahrer.stopDriving()
+            self.webSocketAdapt.sendMessage("LOG=\"Der Wagen ist vom rechten Pfad abgekommen. Bitte manuell beheben.\"")
 
     def startWatch(self):
-        t = threading.Thread(target=watch)
-        t.start()
+        self.start()
 
     def stopWatch(self):
         self.stop()
 
-    def log(message):
+    def log(self, message):
         print("[Linienfolger] : %s" % message)

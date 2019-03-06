@@ -17,16 +17,16 @@ class Fahrer(threading.Thread):
     abstandZaehler = None
 
     def __init__(self, motorAdapt, destLoc, webSocketAdapt):
-        super(StoppableThread, self).__init__()
+#        super(StoppableThread, self).__init__()
         self._stop_event = threading.Event()
 
-        linienFolger = LinienFolger.LinienFolger(motorAdapt, webSocketAdapt)
+        self.linienFolger = LinienFolger.LinienFolger(motorAdapt, webSocketAdapt)
         self.motorAdapt = motorAdapt
         self.pathFinder = PathFinder.PathFinder()
-        self.abstandZaehler = Abstandzaehler.Abstandzaehler(pathFinder)
+        self.abstandZaehler = Abstandzaehler.Abstandzaehler(self.pathFinder)
         self.destLoc = destLoc
         self.webSocketAdapt = webSocketAdapt
-        self.ultraSchallWatcher = UltraSchallWatch.UltraschallWatch(motorAdapt, webSocketAdapt)
+        self.ultraSchallWatcher = UltraschallWatch.UltraschallWatch(motorAdapt, webSocketAdapt)
 
     def stop(self):
         self._stop_event.set()
@@ -35,43 +35,42 @@ class Fahrer(threading.Thread):
         return self._stop_event.is_set()
 
 
-    def drive(self):
+    def run(self):
         
-        log("Fahrer gestartet. Starte Watcher")
+        self.log("Fahrer gestartet. Starte Watcher")
         
-        ultraSchallWatcher.startWatch()
-        linienFolger.startWatch()
-        abstandZaehler.startMonitoring()
-        motorAdapt.powerOn()
+        self.ultraSchallWatcher.startWatch()
+        self.linienFolger.startWatch()
+        self.abstandZaehler.startMonitoring()
+        self.motorAdapt.powerOn()
 
-        log("Starte Motor")
+        self.log("Starte Motor")
 
-        while(pathFinder.getDistanceToLoc(destLoc) > 0.1):
-            if(stopped()):
-                log("Breche Fahrt ab")
-                motorAdapt.powerOff()
-                ultraSchallWatcher.stopWatch()
-                linienFolger.stopWatch()
-                abstandZaehler.stopMonitoring()
+        while(self.pathFinder.getDistanceToLoc(self.destLoc) > 0.1):
+            if(self.stopped()):
+                self.log("Breche Fahrt ab")
+                self.motorAdapt.powerOff()
+                self.ultraSchallWatcher.stopWatch()
+                self.linienFolger.stopWatch()
+                self.abstandZaehler.stopMonitoring()
                 
                 return
             continue
         
-        log("Ziel erreicht.")
-        motorAdapt.powerOff()
+        self.log("Ziel erreicht.")
+        self.motorAdapt.powerOff()
 
-        ultraSchallWatcher.stopWatch()
-        linienFolger.stopWatch()
-        abstandZaehler.stopMonitoring()
+        self.ultraSchallWatcher.stopWatch()
+        self.linienFolger.stopWatch()
+        self.abstandZaehler.stopMonitoring()
 
     def startDriving(self):
-        t = threading.Thread(target=drive)
-        t.start()
+        self.start()
 
     def stopDriving(self):
-        stop()
+        self.stop()
 
-    def log(message):
+    def log(self, message):
         print("[Fahrer] : %s" % message)
 
 

@@ -7,7 +7,7 @@ class PathFinder(object):
         pass
 
     def getDistanceToLoc(self, newLoc):
-        return newLoc.dist - currentLocation.dist
+        return newLoc.dist - self.currentLocation.dist
 
     def updateLocation(self, distance):
         self.currentLocation.dist = self.currentLocation.dist + distance
@@ -15,5 +15,5 @@ class PathFinder(object):
     def setLocation(self, location):
         self.currentLocation.dist = location.dist
 
-    def log(message):
+    def log(self, message):
         print("[Pathfinder] : %s" % message)

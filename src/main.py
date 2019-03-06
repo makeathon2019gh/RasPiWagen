@@ -23,8 +23,8 @@ def log(message):
 def startup():
 	sys.path.append('/home/pi/RasPiWagen/src')
 	sys.path.append('/home/pi/RasPiWagen/src/motorik')
-
         log("--------------- Der Einkaufswagen wurde gestartet ---------------")
+
         
         log("Initialisiere GPIO")
         GPIO.setmode(GPIO.BCM)
@@ -32,7 +32,7 @@ def startup():
 
         log("Initialisiere Motor, Websocket und RFID-Adapter")
         webSocketAdapt = WebSocketAdapter.WebSocketAdapter("192.168.137.33")
-	motorAdapt = MotorAdapter.MotorAdapter(0,0, webSocketAdapt)
+	motorAdapt = MotorAdapter.MotorAdapter()
         
         rfidAdapt = RFIDAdapter.RFIDAdapter()
 
@@ -66,7 +66,7 @@ def startup():
                         nextLoc = Location.Location(pos, 'A')
                         self.fahrer = Fahrer.Fahrer(motorAdapt, nextLoc, webSocketAdapt)
                         self.fahrer.startDriving()
-                elif(command == "STOP"):
+                elif(command == "BREAK"):
                         log("Der Einkaufswagen wird gestoppt.")
                         self.fahrer.stopDriving()
 

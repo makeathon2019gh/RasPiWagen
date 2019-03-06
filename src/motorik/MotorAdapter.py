@@ -1,50 +1,50 @@
 import RPi.GPIO as GPIO
 from network import WebSocketAdapter
+import time
 
 class MotorAdapter(object):
     pinAntrieb = 2
     pinDirection = 4
     pinStep = 3
-    webSocketAdapt = None
-
-    def log(message):
+    
+    def log(self, message):
         print("[Motor] : %s" % message)
 
 
     def powerOn(self):
-        log("Motor wird angeschalten")
-        GPIO.output(pinAntrieb, 1)
+        self.log("Motor wird angeschalten")
+        GPIO.setmode(GPIO.BCM)
+        GPIO.output(self.pinAntrieb, GPIO.HIGH)
     
     def powerOff(self):
-        log("Motor wird ausgeschalten")
-        GPIO.output(pinAntrieb, 0)
+        self.log("Motor wird ausgeschalten")
+        GPIO.setmode(GPIO.BCM)
+        GPIO.output(self.pinAntrieb, GPIO.HIGH)
         
-    def rechtsFahren(count):
-        log("Fahre nach rechts")
-        GPIO.output(pinDirection, High)
+    def rechtsFahren(self, count):
+        self.log("Fahre nach rechts")
+        GPIO.setmode(GPIO.BCM)
+        GPIO.output(self.pinDirection, GPIO.HIGH)
         for i in range(count):
-            GPIO.output(pinStep, High)
+            GPIO.output(self.pinStep, GPIO.HIGH)
             time.sleep(0.0001)
-            GPIO.output(pinStep, Low)
+            GPIO.output(self.pinStep, GPIO.LOW)
             time.sleep(0.0001)
 
-    def linksFahren(count):
-        log("Fahre nach links")
-        GPIO.output(pinDirection, Low)
+    def linksFahren(self, count):
+        self.log("Fahre nach links")
+        GPIO.output(self.pinDirection, GPIO.LOW)
         for i in range(count):
-            GPIO.output(pinStep, High)
+            GPIO.output(self.pinStep, GPIO.HIGH)
             time.sleep(0.0001)
-            GPIO.output(pinStep, Low)
+            GPIO.output(self.pinStep, GPIO.LOW)
             time.sleep(0.0001)
 
     
-    def __init__(self, pinAntrieb, pinSteuerung, webSocketAdapt):
-        self.pinAntrieb = pinAntrieb
-        self.pinSteuerung = pinSteuerung
-        self.webSocketAdapt = webSocketAdapt
-        GPIO.setup(pinAntrieb, GPIO.OUT)
-        GPIO.setup(pinSteuerung, GPIO.OUT)
-    
+    def __init__(self):
+        GPIO.setup(self.pinAntrieb, GPIO.OUT)
+        GPIO.setup(self.pinSteuerung, GPIO.OUT)
+        GPIO.setup(self.pinDirection, GPIO.OUT)
 
 
         

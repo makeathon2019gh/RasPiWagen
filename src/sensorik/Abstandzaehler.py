@@ -2,6 +2,7 @@
 import RPi.GPIO as GPIO
 from pathFinding import PathFinder
 import threading
+import time
 
 class Abstandzaehler(threading.Thread):
 
@@ -9,11 +10,11 @@ class Abstandzaehler(threading.Thread):
     pathFinder = None
 
     def __init__(self, pathFinder):
-        super(StoppableThread, self).__init__()
+#        super(StoppableThread, self).__init__()
         self._stop_event = threading.Event()
 
         self.pathFinder = pathFinder
-        GPIO.setup(pinIRRecv, GPIO.IN)
+        GPIO.setup(self.pinIRRecv, GPIO.IN)
         pass
 
     def stop(self):
@@ -22,30 +23,28 @@ class Abstandzaehler(threading.Thread):
     def stopped(self):
         return self._stop_event.is_set()
 
-
-    def monitoring(self):
-        log(" Abstandzaehler wird gestartet")
+    def run(self):
+        self.log(" Abstandzaehler wird gestartet")
         while(True):
-            if(stopped()):
+            if(self.stopped()):
                 return
-            while(GPIO.input(pinIRRecv) == True):
-                if(stopped()):
+            while(GPIO.input(self.pinIRRecv) == True):
+                if(self.stopped()):
                     return
                 time.sleep(0.0001)
-                pathFinder.updateLocation(62.831)
-            while(GPIO.input(pinIRRecv) == False):
-                if(stopped()):
+                self.pathFinder.updateLocation(62.831)
+            while(GPIO.input(self.pinIRRecv) == False):
+                if(self.stopped()):
                     return
                 time.sleep(0.0001)
             
     def startMonitoring(self):
-        t = threading.Thread(target = monitoring)
-        t.start()
+        self.start()
 
     def stopMonitoring(self):
-        stop()
+        self.stop()
 
-    def log(message):
+    def log(self, message):
         print("[Abstandzaehler] : %s" % message)
 
 

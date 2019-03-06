@@ -1,3 +1,4 @@
+import time
 import RPi.GPIO as GPIO
 from motorik import MotorAdapter
 from network import WebSocketAdapter
@@ -10,6 +11,10 @@ class UltraschallWatch(threading.Thread):
     pinUltra3 = 13
     pinUltra4 = 19
     pinUltra5 = 26
+    pinUltra6 = 23
+    pinUltra7 = 24
+    pinUltra8 = 25
+    pinUltra9 = 8
 
     pinTrigger = 21
 
@@ -18,16 +23,22 @@ class UltraschallWatch(threading.Thread):
     fahrer = None
 
     def __init__(self, fahrer, motorAdapt, webSocketAdapt):
-        super(StoppableThread, self).__init__()
+        #super(StoppableThread, self).__init__()
         self._stop_event = threading.Event()
 
-        GPIO.setup(pinUltra1, GPIO.IN)
-        GPIO.setup(pinUltra2, GPIO.IN)
-        GPIO.setup(pinUltra3, GPIO.IN)
-        GPIO.setup(pinUltra4, GPIO.IN)
-        GPIO.setup(pinUltra5, GPIO.IN)
+        GPIO.setmode(GPIO.BCM)
+
+        GPIO.setup(self.pinUltra1, GPIO.IN)
+        GPIO.setup(self.pinUltra2, GPIO.IN)
+        GPIO.setup(self.pinUltra3, GPIO.IN)
+        GPIO.setup(self.pinUltra4, GPIO.IN)
+        GPIO.setup(self.pinUltra5, GPIO.IN)
+        GPIO.setup(self.pinUltra6, GPIO.IN)
+        GPIO.setup(self.pinUltra7, GPIO.IN)
+        GPIO.setup(self.pinUltra8, GPIO.IN)
+        GPIO.setup(self.pinUltra9, GPIO.IN)
         
-        GPIO.setup(pinTrigger, GPIO.OUT)
+        GPIO.setup(self.pinTrigger, GPIO.OUT)
         
         self.motorAdapt = motorAdapt
         self.webSocketAdapt = webSocketAdapt
@@ -39,26 +50,25 @@ class UltraschallWatch(threading.Thread):
     def stopped(self):
         return self._stop_event.is_set()
 
-
     def watch(self):
-        log(" Beginne Ultraschall-Ueberwachung")
+        self.log(" Beginne Ultraschall-Ueberwachung")
         while(True):
-            if(stopped()):
+            if(self.stopped()):
                 return
             
-            GPIO.output(pinTrigger, True)
-            time.sleeep(0.00001)
-            GPIO.output(pinTrigger, False)
+            GPIO.output(self.pinTrigger, True)
+            time.sleep(0.00001)
+            GPIO.output(self.pinTrigger, False)
 
             StartZeit = time.time()
             EndZeit = StartZeit
 
-            while (GPIO.input(pinUltra1) == 0 and GPIO.input(pinUltra2) == 0 and GPIO.input(pinUltra3) == 0 and GPIO.input(pinUltra4) == 0 and GPIO.input(pinUltra5) == 0):
+            while (GPIO.input(self.pinUltra1) == 0 and GPIO.input(self.pinUltra2) == 0 and GPIO.input(self.pinUltra3) == 0 and GPIO.input(self.pinUltra4) == 0 and GPIO.input(self.pinUltra5) == 0  and GPIO.input(self.pinUltra6) == 0 and GPIO.input(self.pinUltra7) == 0 and GPIO.input(self.pinUltra8) == 0 and GPIO.input(self.pinUltra9) == 0):
                 continue
             
             StartZeit = time.time()
 
-            while (GPIO.input(pinUltra1) == 1 or GPIO.input(pinUltra2) == 1 or GPIO.input(pinUltra3) == 1 or GPIO.input(pinUltra4) == 1 or GPIO.input(pinUltra5) == 1):
+            while (GPIO.input(self.pinUltra1) == 1 or GPIO.input(self.pinUltra2) == 1 or GPIO.input(self.pinUltra3) == 1 or GPIO.input(self.pinUltra4) == 1 or GPIO.input(self.pinUltra5) == 1 or GPIO.input(self.pinUltra6) == 1 or GPIO.input(self.pinUltra7) == 1 or GPIO.input(self.pinUltra8) == 1 or GPIO.input(self.pinUltra9) == 1):
                 continue
             
             EndZeit = time.time()
@@ -66,20 +76,19 @@ class UltraschallWatch(threading.Thread):
             distanz = (Dauer * 34300 ) / 2
             
             if(distanz < 50):
-                motorAdapt.powerOff()
-                fahrer.stopDriving()
-                log(" Distanz &.1f wurde gemessen und als zu kurz befunden." % distanz)
-                webSocketAdapt.sendMessage("STOP")
-                webSocketAdapt.sendMessage("LOG=\"Hindernis im Weg!!! Bitte nichts naeher als 50cm an den Wagen herankommen lassen!\"")
+                self.motorAdapt.powerOff()
+                self.fahrer.stopDriving()
+                self.log(" Distanz &.1f wurde gemessen und als zu kurz befunden." % distanz)
+                self.webSocketAdapt.sendMessage("STOP")
+                self.webSocketAdapt.sendMessage("LOG=\"Hindernis im Weg!!! Bitte nichts naeher als 50cm an den Wagen herankommen lassen!\"")
             
     def startWatch(self):
-        t = threading.Thread(target=watch)
-        t.start()
+        self.start()
 
     def stopWatch(self):
         self.stop()
 
-    def log(message):
+    def log(self, message):
         print("[Ultraschall] : %s" % message)
 
 
